@@ -10,9 +10,7 @@
  * - Divide file size by num_threads to get chunk size
  * - Set start_byte = thread_id * chunk_size
  * - Set end_byte = (thread_id == num_threads-1) ? file_size : (thread_id + 1) * chunk_size
- * 
- * IMPORTANT: Adjust start_byte to skip to next newline character
- *            so threads don't start in the middle of a line
+ *
  */
 void calculate_file_partitions(const char* filename, int num_threads, long partitions[]) {
     
@@ -64,10 +62,9 @@ void* process_log_chunk(void* arg) {
 
     fseek(file, data->start_byte, SEEK_SET);
 
-    // Skip partial first line if not at the start of the file
     if (data->start_byte != 0) {
         char skip[MAX_LINE_LENGTH];
-        fgets(skip, MAX_LINE_LENGTH, file);
+        if (fgets(skip, MAX_LINE_LENGTH, file) == NULL) return NULL;
     }
 
     while (ftell(file) < data->end_byte) {
@@ -79,10 +76,8 @@ void* process_log_chunk(void* arg) {
         char url[MAX_URL_LENGTH];
         int status;
 
-        // Parse: IP - - [timestamp] "METHOD URL HTTP/x.x" STATUS
         if (sscanf(line, "%15s - - [%*[^]]] \"%*s %255[^ ] %*[^\"]\" %d", ip, url, &status) != 3)
             continue;
-
         
         int found = 0;
         for (int i = 0; i < data->ip_count; i++) {
@@ -98,7 +93,6 @@ void* process_log_chunk(void* arg) {
             data->ip_count++;
         }
 
-        
         int url_found = 0;
         for (int i = 0; i < data->url_count; i++) {
             if (strcmp(data->url_results[i].url, url) == 0) {
@@ -112,13 +106,11 @@ void* process_log_chunk(void* arg) {
             data->url_results[data->url_count].count = 1;
             data->url_count++;
         }
-
-       
         if (status >= 400 && status < 500) {
-            data->error_count->error_4xx++;
+            data->error_count.error_4xx++;
         }
         if (status >= 500 && status < 600) {
-            data->error_count->error_5xx++;
+            data->error_count.error_5xx++;
         }
     }
 
@@ -199,7 +191,6 @@ void free_thread_data(ThreadData* data, int num_threads) {
 
     free(data->ip_results);   
     free(data->url_results);  
-    free(data->error_count);
     free(data->filename);
     free(data);  
 
