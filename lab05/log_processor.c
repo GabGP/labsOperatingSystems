@@ -1,10 +1,5 @@
 #include "log_processor.h"
 
-#include <stdio.h>
-#include <stdlib.h>                 
-#include <string.h>
-#include <pthread.h>
-#include <sys/time.h>
 
 
 /*
@@ -144,7 +139,44 @@ void* process_log_chunk(void* arg) {
  *       so no mutex needed - just single-threaded merging
  */
 void merge_results(AggregatedResults* master, ThreadData* thread_results, int num_threads) {
-    
+    for (int t = 0; t < num_threads; t++) {
+        ThreadData* td = &thread_results[t];
+
+        for (int i = 0; i < td->ip_count; i++) {
+            int found = 0;
+            for (int j = 0; j < master->ip_count; j++) {
+                if (strcmp(master->ips[j].ip, td->ip_results[i].ip) == 0) {
+                    master->ips[j].count += td->ip_results[i].count;
+                    found = 1;
+                    break;
+                }
+            }
+            if (!found) {
+                strcpy(master->ips[master->ip_count].ip, td->ip_results[i].ip);
+                master->ips[master->ip_count].count = td->ip_results[i].count;
+                master->ip_count++;
+            }
+        }
+
+        for (int i = 0; i < td->url_count; i++) {
+            int found = 0;
+            for (int j = 0; j < master->url_count; j++) {
+                if (strcmp(master->urls[j].url, td->url_results[i].url) == 0) {
+                    master->urls[j].count += td->url_results[i].count;
+                    found = 1;
+                    break;
+                }
+            }
+            if (!found) {
+                strcpy(master->urls[master->url_count].url, td->url_results[i].url);
+                master->urls[master->url_count].count = td->url_results[i].count;
+                master->url_count++;
+            }
+        }
+
+        master->errors.error_4xx += td->error_count.error_4xx;
+        master->errors.error_5xx += td->error_count.error_5xx;
+    }
 }
 
 /*
