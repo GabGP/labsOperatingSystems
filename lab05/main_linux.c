@@ -1,7 +1,7 @@
 #include "log_processor.h"
 
 int main(int argc, char* argv[]) {
-    const char* filename = "access.log";
+    const char* filename = "./access.log";
     
     if (argc > 1) {
         filename = argv[1];
@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
     
 
     
-    printf("\n--- Running con 4 threads ---\n");
+    printf("\n--- Running with 4 threads ---\n");
     run_benchmark(filename, 4);
     
     return 0;
