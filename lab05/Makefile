@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -pthread -O2
+CFLAGS = -Wall -pthread -O2 -fsanitize=address
 LDFLAGS = -pthread
 
 TARGET = log_processor
