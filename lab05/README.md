@@ -12,7 +12,7 @@ Functions:
 
 This is done by reading an auto-generated access log file. Then depending on the amount of threads used, this file would get partitioned so, that each thread can process the data and ultimately, merging that data and getting it ready to be printed to the user.
 
-![Alt text](./Screenshots/example.png?raw=true "Expected Output")
+![Alt text](https://github.com/guillermo-martinez42/labsOperatingSystems/blob/main/lab05/Screenshots/Example.png "Expected Output")
 
 ## 0. How to Run?
 
