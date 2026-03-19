@@ -9,7 +9,6 @@
 #define NUM_SPOTS 3
 
 sem_t parking_semaphore;
-// TODO: initialize semaphore
 
 pthread_mutex_t log_mutex   = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t stats_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -37,7 +36,7 @@ void *car_thread(void *arg) {
 
     log_event(car_id, "arrived at the parking lot");
 
-    // TODO: wait on parking_semaphore (sem_wait)
+    sem_wait(&parking_semaphore);
 
     struct timespec parked;
     clock_gettime(CLOCK_MONOTONIC, &parked);
@@ -46,13 +45,15 @@ void *car_thread(void *arg) {
 
     char buffer[128];
     snprintf(buffer, sizeof(buffer), "parked (waited %.3f seconds)", wait_time);
-    // TODO: log successful park with wait time using log_event
+    log_event(car_id, buffer);
 
-    // TODO: sleep for a random 1–5 seconds to simulate parking duration
+    int park_duration = (rand() % 5) + 1;
+    sleep(park_duration);
 
-    // TODO: log departure using log_event
+    snprintf(buffer, sizeof(buffer), "leaving after %d seconds", park_duration);
+    log_event(car_id, buffer);
 
-    // TODO: post parking_semaphore (sem_post)
+    sem_post(&parking_semaphore);
 
     pthread_mutex_lock(&stats_mutex);
     total_cars_parked++;
@@ -65,7 +66,10 @@ void *car_thread(void *arg) {
 int main(void) {
     srand((unsigned int)time(NULL));
 
-    // TODO: initialize semaphore (sem_init)
+    if (sem_init(&parking_semaphore, 0, NUM_SPOTS) != 0) {
+        perror("sem_init");
+        exit(EXIT_FAILURE);
+    }
 
     pthread_t threads[NUM_CARS];
 
@@ -83,12 +87,15 @@ int main(void) {
         pthread_join(threads[i], NULL);
     }
 
-    printf("\n--- Parking Lot Statistics ---\n");
+   
     printf("Total cars parked : %d\n", total_cars_parked);
-    printf("Average wait time : %.3f seconds\n",
+    printf("Average wait time : %.3f s\n",
            total_cars_parked > 0 ? total_wait_time / total_cars_parked : 0.0);
 
-    // TODO: destroy semaphore (sem_destroy)
+    if (sem_destroy(&parking_semaphore) != 0) {
+        perror("sem_destroy");
+        exit(EXIT_FAILURE);
+    }
 
     return 0;
 }
