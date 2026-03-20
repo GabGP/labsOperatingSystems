@@ -4,9 +4,14 @@
 #include <semaphore.h>
 #include <time.h>
 #include <unistd.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 #define NUM_CARS 10
 #define NUM_SPOTS 3
+#define MIN_TIME_PER_EVENT 1
+#define WINDOW_WIDTH 400
+#define WINDOW_HEIGHT 200
 
 sem_t parking_semaphore;
 
@@ -18,27 +23,64 @@ int parking_spots[NUM_SPOTS];
 int total_cars_parked = 0;
 double total_wait_time = 0.0;
 
-void draw_parking()
+void draw_text(SDL_Renderer *renderer, const char *text, int font_size, int x, int y)
+{
+    TTF_Font *font = TTF_OpenFont("./fonts/Roboto-VariableFont_wdth,wght.ttf", font_size);
+    if (!font)
+    {
+        fprintf(stderr, "Failed to load font: %s\n", TTF_GetError());
+        return;
+    }
+
+    SDL_Color background = {0, 0, 0, 255}; // black
+    SDL_Color fill = {255, 255, 255, 255}; // white
+
+    SDL_Surface *text_surface = TTF_RenderText_Shaded(font, text, fill, background);
+    SDL_Texture *text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+
+    SDL_Rect text_rect = {x, y, text_surface->w, text_surface->h};
+
+    SDL_RenderCopy(renderer, text_texture, NULL, &text_rect);
+
+    SDL_FreeSurface(text_surface);
+    SDL_DestroyTexture(text_texture);
+
+    TTF_CloseFont(font);
+}
+
+void draw_parking(SDL_Renderer *renderer)
 {
     pthread_mutex_lock(&draw_mutex);
 
-    /*
-    if (system("clear") == -1)
-    {
-        perror("system");
-        exit(EXIT_FAILURE);
-    }
-    */
+    char text[64];
 
-    printf("\n=== Parking Lot ===\n");
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0); // black background
+    SDL_RenderClear(renderer);
+
     for (int i = 0; i < NUM_SPOTS; i++)
     {
+        SDL_Rect rect = {50 + i * 100, 50, 80, 80};
+
+        snprintf(text, sizeof(text), "Spot %i", i);
+        draw_text(renderer, text, 24, rect.x + 5, rect.y - 40);
+
         if (parking_spots[i] == 0)
-            printf("[   ] ");
+        {
+            SDL_SetRenderDrawColor(renderer, 102, 153, 0, 255); // empty = green
+            SDL_RenderFillRect(renderer, &rect);
+            draw_text(renderer, "Empty", 12, rect.x + 20, rect.y + 80);
+        }
         else
-            printf("[C%2d] ", parking_spots[i]);
+        {
+            SDL_SetRenderDrawColor(renderer, 204, 0, 0, 255); // occupied = red
+            SDL_RenderFillRect(renderer, &rect);
+            snprintf(text, sizeof(text), "Car ID: %i", parking_spots[i]);
+            draw_text(renderer, text, 12, rect.x + 18, rect.y + 30);
+            draw_text(renderer, "Occupied", 12, rect.x + 15, rect.y + 80);
+        }
     }
-    printf("\n===================\n");
+
+    SDL_RenderPresent(renderer);
 
     pthread_mutex_unlock(&draw_mutex);
 }
@@ -65,8 +107,14 @@ void *car_thread(void *arg)
     clock_gettime(CLOCK_MONOTONIC, &arrival);
 
     log_event(car_id, "arrived at the parking lot");
+    // This was added, because otherwise the events would be hard to notice in the gui
+    sleep(MIN_TIME_PER_EVENT);
 
+    // Simulate waiting for a spot
     sem_wait(&parking_semaphore);
+
+    // This was added, because otherwise the events would be hard to notice in the gui
+    sleep(MIN_TIME_PER_EVENT);
 
     // Simulate parking
     struct timespec parked;
@@ -85,7 +133,6 @@ void *car_thread(void *arg)
             break;
         }
     }
-    draw_parking();
 
     // Simulate leaving after 1-5 seconds
     int park_duration = (rand() % 5) + 1;
@@ -104,7 +151,6 @@ void *car_thread(void *arg)
             break;
         }
     }
-    draw_parking();
 
     // Update statistics
     pthread_mutex_lock(&stats_mutex);
@@ -119,12 +165,24 @@ int main(void)
 {
     srand((unsigned int)time(NULL));
 
+    // Initialize semaphore
     if (sem_init(&parking_semaphore, 0, NUM_SPOTS) != 0)
     {
         perror("sem_init");
         exit(EXIT_FAILURE);
     }
 
+    // Initialize SDL
+    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Window *window = SDL_CreateWindow("Parking Lot",
+                                          SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                          WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
+
+    // Initialize SDL_ttf
+    TTF_Init();
+
+    // Initialize cars (threads)
     pthread_t threads[NUM_CARS];
 
     for (int i = 0; i < NUM_CARS; i++)
@@ -139,6 +197,24 @@ int main(void)
         pthread_create(&threads[i], NULL, car_thread, id);
     }
 
+    // Main loop to handle SDL events and redraw parking lot
+    SDL_Event event;
+    int running = 1;
+    while (running)
+    {
+        draw_parking(renderer);
+
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_QUIT)
+            {
+                running = 0;
+                break;
+            }
+        }
+    }
+
+    // Wait for all cars to finish
     for (int i = 0; i < NUM_CARS; i++)
     {
         pthread_join(threads[i], NULL);
@@ -148,6 +224,11 @@ int main(void)
     printf("Total cars parked : %d\n", total_cars_parked);
     printf("Average wait time : %.3f s\n",
            total_cars_parked > 0 ? total_wait_time / total_cars_parked : 0.0);
+
+    // Cleanup
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 
     if (sem_destroy(&parking_semaphore) != 0)
     {
