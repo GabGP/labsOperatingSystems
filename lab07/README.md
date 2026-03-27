@@ -11,7 +11,7 @@ Functions:
 - Implement a starvation prevention mechanism to ensure no direction waits indefinitely.
 - Print logs of the simulation
 
-![Alt text](https://github.com/guillermo-martinez42/labsOperatingSystems/blob/main/lab06/Screenshots/example_console.png "Expected Output")
+![Alt text](https://github.com/guillermo-martinez42/labsOperatingSystems/blob/main/lab07/Screenshots/Example.png "Expected Output")
 
 ## 0. How to Run?
 
