@@ -1,6 +1,7 @@
 import sys
-from algorithms import simulate_fifo, simulate_min, simulate_lru
+from algorithms import simulate_fifo, simulate_min, simulate_lru, simulate_clock
 from logging import print_summary
+from beladys_anomaly import run_demo as run_beladys_demo
 
 def read_input(filepath):
     try:
@@ -48,13 +49,22 @@ def main():
     # LRU
     lru_hits, lru_misses = simulate_lru(N, sequence)
     print_summary(lru_hits, lru_misses)
-    
+
+    # CLOCK
+    clock_hits, clock_misses = simulate_clock(N, sequence)
+    print_summary(clock_hits, clock_misses)
+
     print("\n--- Comparison Summary ---")
     print(f"{'Algorithm':<10} | {'Hits':<5} | {'Misses':<6} | {'Hit Rate'}")
     print("-" * 45)
     print(f"{'FIFO':<10} | {fifo_hits:<5} | {fifo_misses:<6} | {(fifo_hits/(fifo_hits+fifo_misses)*100):.2f}%")
     print(f"{'MIN/OPT':<10} | {min_hits:<5} | {min_misses:<6} | {(min_hits/(min_hits+min_misses)*100):.2f}%")
     print(f"{'LRU':<10} | {lru_hits:<5} | {lru_misses:<6} | {(lru_hits/(lru_hits+lru_misses)*100):.2f}%")
+    print(f"{'CLOCK':<10} | {clock_hits:<5} | {clock_misses:<6} | {(clock_hits/(clock_hits+clock_misses)*100):.2f}%")
+
+    # BELADY'S FIFO (Anomaly Demo)
+    print("\n")
+    run_beladys_demo()
 
 if __name__ == "__main__":
     main()
