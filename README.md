@@ -16,8 +16,8 @@ Welcome to the **Operating Systems Labs** repository! This collection of assignm
 | **Lab 006** | Semaphores | Counting semaphores, Mutex locks, Shared resources | Linux |
 | **Lab 007** | Condition Variables | Thread coordination, Complex synchronization logic | Linux |
 | **Lab 008** | CPU Scheduling | FIFO, SJF, Round Robin, SRTF, Mutex synchronization | Linux |
-| **Lab 009** | Memory Management | Virtual Memory, Paging, Segmentation | Any w/ Python3 |
-| **Lab 010** | Page Replacement Algorithms | FIFO, LRU, Optimal (MIN), Hit/Miss Metrics | Any w/ Python3 |
+| **Lab 009** | Virtual Address Translation and Page Tables | Virtual Memory, Paging, Segmentation, Address Translation | Any w/ Python3 |
+| **Lab 010** | Page Replacement | FIFO, LRU, Optimal (MIN), Hit/Miss Metrics | Any w/ Python3 |
 
 ---
 
@@ -55,11 +55,11 @@ A complex concurrency challenge requiring **condition variables** and **mutex lo
 
 Simulates various CPU scheduling strategies using multi-threading. This lab covers non-preemptive algorithms (FIFO, SJF) and preemptive ones (Round Robin, SRTF), focusing on performance metrics like Waiting Time and Turnaround Time using thread-safe queues.
 
-### Lab 009: Memory Management
+### Lab 009: Virtual Address Translation and Page Tables
 
-Explores the implementation and management of memory within an operating system. This lab focuses on how the OS maps virtual addresses to physical memory, handles fragmentation, and manages page tables.
+Explores the implementation and management of memory within an operating system. This lab focuses on how the OS maps 16-bit virtual addresses to physical memory using an 8-bit VPN and an 8-bit offset, handles a linear page table, manages a randomized 100-frame physical RAM pool, and dynamically simulates address translation or fault detection from a batch input file.
 
-### Lab 010: Page Replacement Algorithms
+### Lab 010: Page Replacement
 
 A Python-based simulation of user-space memory management. This lab evaluates how different replacement policies (FIFO, MIN and LRU) behave under specific reference sequences, calculating efficiency through hit/miss ratios.
 
