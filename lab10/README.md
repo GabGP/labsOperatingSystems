@@ -12,6 +12,16 @@ Functions:
 - Calculate performance metrics including total hits, total misses, and hit rate percentages.
 - Generate step-by-step execution traces showing memory states and page evictions.
 
+![Alt text](https://github.com/guillermo-martinez42/labsOperatingSystems/blob/main/lab10/Screenshots/Output1.png "Start")
+
+![Alt text](https://github.com/guillermo-martinez42/labsOperatingSystems/blob/main/lab10/Screenshots/Output2.png "FIFO")
+
+![Alt text](https://github.com/guillermo-martinez42/labsOperatingSystems/blob/main/lab10/Screenshots/Output3.png "MIN")
+
+![Alt text](https://github.com/guillermo-martinez42/labsOperatingSystems/blob/main/lab10/Screenshots/Output4.png "LRU")
+
+![Alt text](https://github.com/guillermo-martinez42/labsOperatingSystems/blob/main/lab10/Screenshots/Output5.png "Comparison Summary")
+
 ## 0. How to Run?
 
 You can run the main simulation directly from your terminal:
