@@ -16,6 +16,8 @@ Welcome to the **Operating Systems Labs** repository! This collection of assignm
 | **Lab 006** | Semaphores | Counting semaphores, Mutex locks, Shared resources | Linux |
 | **Lab 007** | Condition Variables | Thread coordination, Complex synchronization logic | Linux |
 | **Lab 008** | CPU Scheduling | FIFO, SJF, Round Robin, SRTF, Mutex synchronization | Linux |
+| **Lab 009** | Memory Management | Virtual Memory, Paging, Segmentation | Any w/ Python3 |
+| **Lab 010** | Page Replacement Algorithms | FIFO, LRU, Optimal (MIN), Hit/Miss Metrics | Any w/ Python3 |
 
 ---
 
@@ -53,6 +55,14 @@ A complex concurrency challenge requiring **condition variables** and **mutex lo
 
 Simulates various CPU scheduling strategies using multi-threading. This lab covers non-preemptive algorithms (FIFO, SJF) and preemptive ones (Round Robin, SRTF), focusing on performance metrics like Waiting Time and Turnaround Time using thread-safe queues.
 
+### Lab 009: Memory Management
+
+Explores the implementation and management of memory within an operating system. This lab focuses on how the OS maps virtual addresses to physical memory, handles fragmentation, and manages page tables.
+
+### Lab 010: Page Replacement Algorithms
+
+A Python-based simulation of user-space memory management. This lab evaluates how different replacement policies (FIFO, MIN and LRU) behave under specific reference sequences, calculating efficiency through hit/miss ratios.
+
 ---
 
 ## ⚙️ Prerequisites
@@ -61,7 +71,6 @@ To run these labs, ensure you have the following toolchains installed:
 
 * **ARM GNU Toolchain**: `arm-none-eabi-gcc` for compiling bare-metal ARM code.
 * **QEMU**: Specifically `qemu-system-arm` for emulating the versatilepb machine.
-* **Native C Compiler**: `gcc` or `clang` for Linux/Windows user-space labs.
+* **Native C Compiler**: `gcc` or `clang` for Linux user-space labs.
+* **Python**: `python3` for the last simulations.
 * **Make / Bash**: For running build scripts and Makefiles.
-
-> **Pro-Tip:** For the bare-metal labs (001-003), pay close attention to the linker scripts (`.ld`) as they are critical for correctly mapping your program into emulated memory.
